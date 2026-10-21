@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Making change</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap"><style>
+.ws{--ink:#1f1830;--pur:#5b3491;--or:#e8731c;--soft:#fff4e8;--ok:#1f7a45;--okl:#eef8f1;--no:#b8430c;--nol:#fff3ec;--rule:#d8cfe5;font-family:"Atkinson Hyperlegible",Verdana,"Segoe UI",sans-serif;color:var(--ink);font-size:18px;line-height:1.4}
+.ws *{box-sizing:border-box}
+.ws .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ws .top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px 28px;flex-wrap:wrap;padding-bottom:12px;border-bottom:4px solid var(--ink);margin-bottom:16px}
+.ws .top h1{margin:0;font-size:2em;line-height:1.1;color:var(--ink);flex:1 1 280px;text-transform:uppercase;letter-spacing:.02em}
+.ws .idlines{display:flex;flex-direction:column;gap:10px;flex:0 1 3.4in;min-width:220px}
+.ws .idline{display:flex;align-items:flex-end;gap:10px}
+.ws .idlbl{font-weight:700;font-size:.95em}
+.ws .rule{flex:1;border-bottom:2px solid var(--ink);height:1.4em}
+.ws .idline input{flex:1;min-width:0;font:inherit;font-size:1.05em;border:0;border-bottom:2px solid var(--ink);padding:4px 2px;background:transparent;color:var(--ink);outline:none}
+.ws .idline input:focus{border-bottom-color:var(--or);background:var(--soft)}
+.ws .dirbox{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--soft);border-left:6px solid var(--or);border-radius:4px 10px 10px 4px;padding:10px 16px;margin-bottom:26px}
+.ws .dirtext{flex:1 1 300px}
+.ws .dir{margin:0;font-weight:700;font-size:1.05em}
+.ws .how{margin:2px 0 0;font-size:.85em;color:#4d4363}
+.ws .empty{color:#5e5374;font-style:italic}
+
+.ws .pgrid{font-size:var(--ps);display:grid;grid-template-columns:repeat(auto-fill,minmax(max(var(--minw),calc((100% - (var(--cols) - 1) * .7em) / var(--cols))),1fr));gap:.9em .7em;align-items:start}
+.ws .pcell{position:relative;display:flex;flex-direction:column;align-items:center;min-width:0;break-inside:avoid;page-break-inside:avoid}
+.ws .pn{font-family:"Atkinson Hyperlegible",Verdana,sans-serif;font-size:18px;font-weight:700;color:var(--pur)}
+.ws-print .pcell .pn{position:absolute;left:0;top:0}
+.ws .stk{display:inline-grid;grid-template-columns:auto auto;align-items:center;font-family:Verdana,Geneva,Tahoma,sans-serif;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;padding-left:.2em}
+.ws .n1{grid-column:2;grid-row:1;text-align:right}
+.ws .opr{grid-column:1;grid-row:2;padding-right:.35em}
+.ws .n2{grid-column:2;grid-row:2;text-align:right}
+.ws .ln{grid-column:1/span 2;grid-row:3;border-bottom:.11em solid var(--ink);margin:.12em 0 .14em}
+.ws .an{grid-column:1/span 2;grid-row:4;text-align:right;min-height:1.25em}
+
+.ws .keypage{margin-top:28px;padding:18px 22px;border:2px solid var(--ink);border-radius:12px}
+.ws .keypage h1{margin:0;font-size:1.3em}
+.ws .keysub{margin:2px 0 8px;color:#5e5374}
+.ws .keylist{margin:0;padding-left:2em;columns:2;column-gap:2em;font-family:Verdana,sans-serif;font-variant-numeric:tabular-nums}
+.ws .keylist li{margin:6px 0;break-inside:avoid}
+.ws .kq{color:#4d4363}
+.ws .keynote{font-size:.8em;color:#5e5374;margin:14px 0 0}
+
+/* digital */
+.ws-digital .pcell{border:3px solid var(--rule);border-radius:16px;padding:.12em .2em .2em;cursor:text;background:#fff}
+.ws-digital .pcell.act{border-color:var(--or);box-shadow:0 0 0 4px #ffe1c4}
+.ws .pbar{align-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px}
+.ws .say{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:2px solid var(--pur);background:#fff;color:var(--pur);cursor:pointer;padding:0}
+.ws .say:hover{background:var(--pur);color:#fff}
+.ws .abox{display:flex;align-items:center;justify-content:flex-end;gap:.05em}
+.ws .dsign{color:#8a809c}
+.ws .ain{font:inherit;font-weight:700;width:100%;min-width:0;text-align:right;border:3px dashed #9d8fb6;border-radius:.18em;background:#faf8fd;color:var(--ink);padding:0 .1em;height:1.3em;outline:none;caret-color:var(--or)}
+.ws .ain:focus,.ws-digital .pcell.act .ain{border-style:solid;border-color:var(--or);background:var(--soft)}
+.ws .pmark{display:none}
+.ws-digital .pcell.ok{border-color:var(--ok);background:var(--okl)}
+.ws-digital .pcell.no{border-color:var(--no);background:var(--nol);border-style:dashed}
+.ws-digital .pcell.ok .ain{border-color:var(--ok);background:#fff;border-style:solid}
+.ws-digital .pcell.no .ain{border-color:var(--no);background:#fff}
+.ws-digital .pcell.ok .pmark,.ws-digital .pcell.no .pmark{display:block;font-family:"Atkinson Hyperlegible",Verdana,sans-serif;font-size:18px;font-weight:700;margin:6px 0 2px;padding:2px 12px;border-radius:999px}
+.ws-digital .pcell.ok .pmark{color:var(--ok);background:#fff}
+.ws-digital .pcell.no .pmark{color:var(--no);background:#fff}
+
+.ws .padwrap{position:static;z-index:3;margin:20px -6px 0;padding:10px 6px;background:rgba(255,255,255,.96);border-top:3px solid var(--rule)}
+.ws .pad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:380px;margin:0 auto}
+.ws .key{font:inherit;font-family:Verdana,sans-serif;font-size:28px;font-weight:700;height:58px;border-radius:12px;border:2px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 var(--rule);touch-action:manipulation}
+.ws .key:active{transform:translateY(2px);box-shadow:0 1px 0 var(--rule)}
+.ws .kback{color:var(--no)}
+.ws .kwide{font-family:"Atkinson Hyperlegible",Verdana,sans-serif;font-size:19px}
+.ws .kclear{grid-column:1/span 1}
+.ws .knext{grid-column:2/span 2;background:var(--pur);color:#fff;border-color:var(--pur);box-shadow:0 3px 0 #3d2163}
+.ws .calcbox{max-width:420px;margin:0 auto;background:#f6f3fa;border:3px solid var(--rule);border-radius:18px;padding:10px}
+.ws .clabel{font-weight:700;font-size:.85em;min-height:32px;color:#4d4363;text-transform:uppercase;letter-spacing:.08em;margin:0 4px 6px}
+.ws .cscreen{background:#fff;border:3px solid var(--ink);border-radius:12px;padding:4px 12px 6px;margin-bottom:10px;text-align:right;font-family:Verdana,sans-serif;font-variant-numeric:tabular-nums;font-weight:700;overflow:hidden}
+.ws .ctape{font-size:18px;color:#5e5374;min-height:1.3em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws .cdisp{font-size:40px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws .cdisp.err{font-size:22px;color:var(--no);line-height:2}
+.ws .calc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ws .calc .kc{grid-column:span 2}
+.ws .calc .kzero{grid-column:span 2}
+.ws .kop{color:var(--pur);background:#efe8f7}
+.ws .keq{background:var(--ok);color:#fff;border-color:var(--ok);box-shadow:0 3px 0 #145232}
+.ws .calc .kput{grid-column:span 2;background:var(--or);color:#fff;border-color:var(--or);box-shadow:0 3px 0 #a9500f}
+.ws .calc .knext{grid-column:span 2}
+.ws-digital .pcell.flash{animation:flash .7s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 10px #ffd0a3}100%{box-shadow:0 0 0 4px #ffe1c4}}
+.ws .maincol{min-width:0}
+@media (min-width:700px) and (max-width:999px) and (min-height:760px){.ws .padwrap{position:sticky;bottom:0}}
+@media (min-width:1000px){
+  .ws .work.haskeys{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
+  .ws .work.haskeys .padwrap{position:sticky;top:12px;margin:0;padding:0;border-top:0;background:none}
+  .ws .work.haskeys .chide{display:none}
+}
+.ws .clabel{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ws .chide{font:inherit;font-size:.8em;font-weight:700;text-transform:none;letter-spacing:0;color:var(--pur);background:#fff;border:2px solid var(--rule);border-radius:999px;padding:3px 12px;cursor:pointer}
+.ws .padwrap.shut .cbody{display:none}
+.ws .padwrap.shut .clabel{margin-bottom:0}
+.ws-paged .padwrap{margin-top:12px}
+
+.ws-paged .pcell{display:none}
+.ws-paged .pcell.cur{display:flex}
+.ws-paged .pgrid{font-size:calc(var(--ps) * 1.3);justify-content:center;grid-template-columns:minmax(0,max-content)}
+.ws .pager{display:flex;align-items:center;gap:12px;margin:22px 0 6px;padding-top:14px;border-top:2px solid var(--rule)}
+.ws .pager .mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;color:#4d4363;font-size:.9em}
+.ws .prog{width:100%;max-width:280px;height:10px;border-radius:999px;background:#ece6f4;overflow:hidden}
+.ws .prog span{display:block;height:100%;background:var(--or);border-radius:999px;transition:width .2s}
+
+.ws .tbtn{font:inherit;font-size:.85em;font-weight:700;background:#fff;color:var(--pur);border:2px solid var(--pur);border-radius:10px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.ws .tbtn.big{font-size:.95em;padding:10px 18px}
+.ws .readdir{flex:0 0 auto}
+.ws .bigbtn{font:inherit;font-size:1.05em;font-weight:700;background:var(--or);color:#fff;border:0;border-radius:12px;padding:12px 26px;cursor:pointer;box-shadow:0 4px 0 #a9500f}
+.ws .say:focus-visible,.ws .tbtn:focus-visible,.ws .bigbtn:focus-visible,.ws .key:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+.ws .donebar{text-align:center;margin:28px 0 6px}
+.ws .result{border:3px solid var(--pur);border-radius:14px;padding:18px;background:#faf7fd;text-align:center;margin-top:14px}
+.ws .result h2{margin:2px 0 6px;font-size:1.35em;color:var(--pur)}
+.ws .resnote{margin:0 0 10px}
+.ws .emailrow{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0 8px;font-weight:700}
+.ws .emailin{font:inherit;font-size:.95em;padding:8px 10px;border:2px solid #cbbde0;border-radius:9px;min-width:0;width:min(320px,100%)}
+.ws .rbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.ws .note{font-size:.75em;color:#5e5374;margin:12px 0 0}
+
+@media (max-width:620px){
+  .ws{font-size:16px}
+  .ws .pgrid{font-size:calc(var(--ps) * .72)}
+  .ws-paged .pgrid{font-size:calc(var(--ps) * .95)}
+  .ws .keylist{columns:1}
+  .ws .key{height:52px;font-size:24px}
+  .ws .kwide{font-size:17px}
+  .ws .cdisp{font-size:34px}
+  .ws .pager .bigbtn,.ws .pager .tbtn{padding:10px 12px}
+}
+.ws-print .keypage{break-before:page;page-break-before:always;margin-top:0}
+.ws-print .dirbox{background:#fff;border:2px solid var(--or);border-left-width:6px}
+.ws-print .pcell{padding-top:6px}
+
+html,body{margin:0;background:#f2eff6}
+.page{max-width:1240px;margin:0 auto;padding:18px 14px 30px}
+#root{background:#fff;border:2px solid #d8cfe5;border-radius:12px;padding:24px 26px}
+@media (max-width:620px){#root{padding:14px 12px}.page{padding:8px 6px 20px}}
+</style></head><body><main class="page"><div id="root"></div></main><script>
+const CONFIG={"level":"store","title":"Making change","directions":"Add or subtract. Write the answer under the line.","count":8,"op":"sub","minVal":1,"maxVal":20,"kind":"dollars","easy":false,"problems":[{"a":2000,"b":700,"op":"-"},{"a":1900,"b":1600,"op":"-"},{"a":1400,"b":300,"op":"-"},{"a":1600,"b":700,"op":"-"},{"a":1800,"b":300,"op":"-"},{"a":1400,"b":600,"op":"-"},{"a":1200,"b":800,"op":"-"},{"a":1000,"b":300,"op":"-"},{"a":1600,"b":1100,"op":"-"},{"a":1500,"b":400,"op":"-"}],"size":"huge","cols":1,"sign":true,"rate":0.85,"readAloud":true,"tool":"calc","paged":false,"showScore":true,"showMarks":true,"key":true,"dateLine":true,"email":"burdettechris63@gmail.com","subject":"Money math results"};
+(function wsRuntime(){
+  'use strict';
+  const SPEAKER = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M3.5 9.2h3.8L12 5.4v13.2l-4.7-3.8H3.5z" fill="currentColor"/><path d="M15.2 9a4.2 4.2 0 0 1 0 6M17.8 6.4a7.8 7.8 0 0 1 0 11.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  const MINUS = '−';
+
+  function h(tag, props, ...kids){
+    const el = document.createElement(tag);
+    if (props) Object.keys(props).forEach(k => {
+      const v = props[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k.slice(0, 2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      else if (k === 'value') el.value = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    (function add(list){ list.forEach(c => { if (c === null || c === undefined || c === false) return; if (Array.isArray(c)) add(c); else el.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c); }); })(kids);
+    return el;
+  }
+
+  /* money helpers (cents) */
+  const wholeOnly = cfg => cfg.kind === 'dollars';
+  function fmt(c, cfg, noSign){
+    const neg = c < 0; c = Math.abs(c);
+    const d = Math.floor(c / 100), ct = c % 100;
+    const s = (wholeOnly(cfg) && ct === 0) ? String(d) : d + '.' + String(ct).padStart(2, '0');
+    return (neg ? '-' : '') + (cfg.sign && !noSign ? '$' : '') + s;
+  }
+  function words(c){
+    const neg = c < 0; c = Math.abs(c);
+    const d = Math.floor(c / 100), ct = c % 100;
+    const parts = [];
+    if (d) parts.push(d + (d === 1 ? ' dollar' : ' dollars'));
+    if (ct) parts.push(ct + (ct === 1 ? ' cent' : ' cents'));
+    return (neg ? 'minus ' : '') + (parts.join(' and ') || '0 dollars');
+  }
+  function parseMoney(s){
+    s = String(s || '').replace(/[$,\s]/g, '');
+    if (!s || !/^\d*\.?\d{0,2}$/.test(s) || s === '.') return NaN;
+    const [a, b] = s.split('.');
+    return (+(a || 0)) * 100 + (b ? +(b.padEnd(2, '0')) : 0);
+  }
+  const answerOf = p => p.op === '-' ? p.a - p.b : p.a + p.b;
+  const cleanProblems = cfg => (cfg.problems || []).filter(p => p && Number.isFinite(p.a) && Number.isFinite(p.b) && (p.op === '+' || p.op === '-'));
+  const sayProblem = (p, cfg) => words(p.a) + (p.op === '-' ? ' minus ' : ' plus ') + words(p.b) + '.';
+
+  /* read aloud */
+  const canSpeak = () => !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+  function speak(text, cfg){
+    if (!canSpeak()) return;
+    try {
+      const u = new SpeechSynthesisUtterance(String(text));
+      u.rate = +((cfg && cfg.rate) || 0.85);
+      u.lang = document.documentElement.lang || 'en-US';
+      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    } catch(e) {}
+  }
+
+  function dl(name, blob){
+    const a = h('a', {href:URL.createObjectURL(blob), download:name}); document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  }
+
+  const PX = {l:38, xl:54, huge:72};
+
+  /* one stacked problem */
+  function stack(p, cfg, ansEl){
+    return h('div', {class:'stk'},
+      h('span', {class:'n1'}, fmt(p.a, cfg)),
+      h('span', {class:'opr', 'aria-hidden':'true'}, p.op === '-' ? MINUS : '+'),
+      h('span', {class:'n2'}, fmt(p.b, cfg)),
+      h('span', {class:'ln', 'aria-hidden':'true'}),
+      h('span', {class:'an'}, ansEl || ' '));
+  }
+
+  function gridStyle(cfg, probs, paged){
+    const longest = Math.max(4, ...probs.map(p => Math.max(fmt(p.a, cfg).length, fmt(p.b, cfg).length, fmt(Math.abs(answerOf(p)), cfg).length)));
+    const minW = ((longest + 1.6) * 0.74).toFixed(2) + 'em';
+    const cols = paged ? 1 : Math.max(1, Math.min(3, +cfg.cols || 2));
+    return '--ps:' + (PX[cfg.size] || PX.xl) + 'px;--cols:' + cols + ';--minw:' + minW;
+  }
+
+  function buildKey(cfg, probs){
+    const box = h('section', {class:'keypage'}, h('h1', null, 'Answer key (staff)'), h('p', {class:'keysub'}, cfg.title || 'Money math'));
+    const ol = h('ol', {class:'keylist'});
+    probs.forEach(p => ol.appendChild(h('li', null, h('span', {class:'kq'}, fmt(p.a, cfg) + ' ' + (p.op === '-' ? MINUS : '+') + ' ' + fmt(p.b, cfg) + ' = '), h('b', null, fmt(answerOf(p), cfg)))));
+    box.appendChild(ol);
+    box.appendChild(h('p', {class:'keynote'}, 'Reading aloud on paper: read the top number, then plus or minus, then the bottom number, as money. For example, “12 dollars and 50 cents plus 3 dollars.”'));
+    return box;
+  }
+
+  function mount(root, cfg, mode){
+    root.textContent = '';
+    const digital = mode === 'digital';
+    const paged = digital && !!cfg.paged;
+    const probs = cleanProblems(cfg);
+    const tool = digital ? (cfg.tool || 'calc') : 'none';
+    root.className = 'ws ws-' + mode + (paged ? ' ws-paged' : ' ws-list');
+    const talk = digital && cfg.readAloud && canSpeak();
+    const live = h('div', {class:'sr', 'aria-live':'polite'});
+    const announce = t => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+    const nameEl = digital ? h('input', {type:'text', placeholder:'Type your name', 'aria-label':'Your name', autocomplete:'off'}) : null;
+
+    root.appendChild(h('header', {class:'top'},
+      h('h1', null, cfg.title || 'Money math'),
+      h('div', {class:'idlines'},
+        h('div', {class:'idline'}, h('span', {class:'idlbl'}, 'Name'), digital ? nameEl : h('span', {class:'rule'})),
+        !digital && cfg.dateLine ? h('div', {class:'idline'}, h('span', {class:'idlbl'}, 'Date'), h('span', {class:'rule short'})) : null)));
+
+    const dirText = cfg.directions || 'Add or subtract. Write the answer under the line.';
+    const how = !digital ? '' : (tool === 'calc' ? 'Use the calculator to work it out. Tap Put in box to write the answer in the box.' : tool === 'pad' ? 'Tap the box under the line. Use the number pad to type the answer.' : 'Type the answer in the box under the line.') + (paged ? ' Tap Next to go on.' : '') + ' Tap I’m finished at the end.';
+    root.appendChild(h('div', {class:'dirbox'},
+      h('div', {class:'dirtext'}, h('p', {class:'dir'}, dirText), how ? h('p', {class:'how'}, how) : null),
+      talk ? h('button', {type:'button', class:'tbtn readdir', onclick:() => speak(dirText + ' ' + how, cfg), html:SPEAKER + '<span>Read the directions</span>'}) : null));
+    root.appendChild(live);
+
+    if (!probs.length) { root.appendChild(h('p', {class:'empty'}, 'Add at least one problem to see the worksheet.')); return; }
+
+    const grid = h('div', {class:'pgrid', style:gridStyle(cfg, probs, paged)});
+    root.appendChild(grid);
+
+    if (!digital) {
+      probs.forEach((p, i) => grid.appendChild(h('div', {class:'pcell'}, h('span', {class:'pn'}, (i + 1) + '.'), stack(p, cfg))));
+      if (cfg.key) root.appendChild(buildKey(cfg, probs));
+      return;
+    }
+
+    /* ----- digital ----- */
+    const work = h('div', {class:'work' + (tool !== 'none' ? ' haskeys' : '')}), mainCol = h('div', {class:'maincol'});
+    root.insertBefore(work, grid); work.appendChild(mainCol); mainCol.appendChild(grid);
+    let activeIn = null, marked = false;
+    const items = probs.map((p, i) => {
+      const inp = h('input', {type:'text', class:'ain', inputmode:tool !== 'none' ? 'none' : 'decimal', autocomplete:'off', spellcheck:'false',
+        'aria-label':'Answer for problem ' + (i + 1) + ': ' + sayProblem(p, cfg)});
+      const mark = h('span', {class:'pmark'});
+      const cell = h('div', {class:'pcell'},
+        h('div', {class:'pbar'}, h('span', {class:'pn'}, (i + 1) + '.'), talk ? h('button', {type:'button', class:'say', 'aria-label':'Read problem ' + (i + 1) + ' aloud', title:'Read aloud', html:SPEAKER, onclick:() => speak(sayProblem(p, cfg), cfg)}) : null),
+        stack(p, cfg, h('span', {class:'abox'}, cfg.sign ? h('span', {class:'dsign', 'aria-hidden':'true'}, '$') : null, inp)),
+        mark);
+      const it = {p, inp, cell, mark};
+      inp.addEventListener('focus', () => { activeIn = it; items.forEach(x => x.cell.classList.toggle('act', x === it)); });
+      inp.addEventListener('input', () => { inp.value = inp.value.replace(/[^0-9.$,]/g, ''); unmark(it); });
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); nextBox(it); } });
+      cell.addEventListener('click', e => { if (e.target.closest('.say')) return; if (e.target !== inp) inp.focus(); });
+      grid.appendChild(cell);
+      return it;
+    });
+    const value = it => parseMoney(it.inp.value);
+    const isRight = it => value(it) === answerOf(it.p);
+    function unmark(it){ if (it.cell.classList.contains('ok') || it.cell.classList.contains('no')) { it.cell.classList.remove('ok', 'no'); it.mark.textContent = ''; } }
+    function setMark(it){
+      const st = !it.inp.value.trim() ? 'none' : isRight(it) ? 'ok' : 'no';
+      it.cell.classList.toggle('ok', st === 'ok'); it.cell.classList.toggle('no', st !== 'ok');
+      it.mark.textContent = st === 'ok' ? '✓ Right!' : st === 'no' ? '✗ Look again' : '✗ No answer yet';
+    }
+    function nextBox(it){
+      const k = items.indexOf(it);
+      if (paged) { if (k < items.length - 1) go(k + 1); return; }
+      const nx = items[k + 1]; if (nx) nx.inp.focus(); else it.inp.blur();
+    }
+
+    /* on-screen number pad */
+    if (tool === 'pad') {
+      const press = key => {
+        const it = activeIn || items.find(x => !x.inp.value) || items[0];
+        if (!it) return;
+        let v = it.inp.value;
+        if (key === 'back') v = v.slice(0, -1);
+        else if (key === 'clear') v = '';
+        else if (key === 'next') { nextBox(it); return; }
+        else if (key === '.') { if (!v.includes('.')) v = (v || '0') + '.'; }
+        else { const dot = v.indexOf('.'); if (dot > -1 && v.length - dot > 2) return; if (v.replace(/\D/g, '').length >= 6) return; v += key; }
+        it.inp.value = v; unmark(it); activeIn = it; items.forEach(x => x.cell.classList.toggle('act', x === it));
+        announce(v ? v : 'empty');
+      };
+      const pad = h('div', {class:'pad', role:'group', 'aria-label':'Number pad'});
+      ['7','8','9','4','5','6','1','2','3', wholeOnly(cfg) ? null : '.', '0', 'back'].forEach(k => {
+        if (k === null) { pad.appendChild(h('span')); return; }
+        pad.appendChild(h('button', {type:'button', class:'key' + (k === 'back' ? ' kback' : ''), 'aria-label':k === 'back' ? 'Delete' : k === '.' ? 'Point' : k,
+          onpointerdown:e => e.preventDefault(), onclick:() => press(k)}, k === 'back' ? '⌫' : k));
+      });
+      pad.appendChild(h('button', {type:'button', class:'key kwide kclear', onpointerdown:e => e.preventDefault(), onclick:() => press('clear')}, 'Clear'));
+      pad.appendChild(h('button', {type:'button', class:'key kwide knext', onpointerdown:e => e.preventDefault(), onclick:() => press('next')}, 'Next box ▶'));
+      work.appendChild(h('div', {class:'padwrap'}, pad));
+    }
+
+    /* on-screen calculator: works it out, then puts the answer in the box */
+    if (tool === 'calc') {
+      const SYM = {'+':'+', '-':MINUS, '*':'\u00d7', '/':'\u00f7'};
+      const NAME = {'+':'plus', '-':'minus', '*':'times', '/':'divided by'};
+      let acc = null, op = null, entry = '0', fresh = true, tape = '', err = false;
+      const showN = x => { const r = Math.round(x * 100) / 100; return Number.isInteger(r) ? String(r) : r.toFixed(2); };
+      const apply = (a, o, b) => o === '+' ? a + b : o === '-' ? a - b : o === '*' ? a * b : (b === 0 ? NaN : a / b);
+      const tapeEl = h('div', {class:'ctape', 'aria-hidden':'true'}, '\u00a0');
+      const disp = h('div', {class:'cdisp', role:'status', 'aria-label':'Calculator display'}, '0');
+      const paintC = () => { disp.textContent = err ? 'Can\u2019t divide by 0' : entry; disp.classList.toggle('err', err); tapeEl.textContent = tape || '\u00a0'; };
+      function press(k){
+        if (err && k !== 'C') { err = false; acc = null; op = null; entry = '0'; tape = ''; fresh = true; }
+        if (/^\d$/.test(k)) {
+          if (fresh) { entry = k; fresh = false; }
+          else { if (entry.replace(/\D/g, '').length >= 9) return; const d = entry.indexOf('.'); if (d > -1 && entry.length - d > 2) return; entry = entry === '0' ? k : entry + k; }
+        } else if (k === '.') {
+          if (fresh) { entry = '0.'; fresh = false; } else if (!entry.includes('.')) entry += '.';
+        } else if (k === 'back') {
+          if (!fresh) { entry = entry.length > 1 ? entry.slice(0, -1) : '0'; if (entry === '-') entry = '0'; }
+        } else if (k === 'C') {
+          acc = null; op = null; entry = '0'; fresh = true; tape = ''; err = false;
+        } else if (SYM[k]) {
+          const cur = parseFloat(entry);
+          if (op && !fresh) { const r = apply(acc, op, cur); if (!isFinite(r)) { err = true; paintC(); return; } acc = r; entry = showN(r); }
+          else if (!op) acc = cur;
+          op = k; fresh = true; tape = showN(acc) + ' ' + SYM[k];
+          if (cfg.readAloud) speak(NAME[k], cfg);
+        } else if (k === '=') {
+          if (op) {
+            const cur = parseFloat(entry), r = apply(acc, op, cur);
+            tape = showN(acc) + ' ' + SYM[op] + ' ' + showN(cur) + ' =';
+            if (!isFinite(r)) err = true; else entry = showN(r);
+            acc = null; op = null;
+          }
+          fresh = true;
+          if (cfg.readAloud && !err) speak('equals ' + entry.replace('-', 'minus '), cfg);
+        }
+        paintC();
+      }
+      function putIn(){
+        if (err) return;
+        const it = activeIn || items.find(x => !x.inp.value) || items[0];
+        if (!it) return;
+        let v = entry; if (v.endsWith('.')) v = v.slice(0, -1);
+        it.inp.value = v; unmark(it); activeIn = it; items.forEach(x => x.cell.classList.toggle('act', x === it));
+        it.cell.classList.remove('flash'); void it.cell.offsetWidth; it.cell.classList.add('flash');
+        announce(v + ' is in the box for problem ' + (items.indexOf(it) + 1) + '.');
+      }
+      const calc = h('div', {class:'calc', role:'group', 'aria-label':'Calculator'});
+      const key = (k, label, cls, aria) => calc.appendChild(h('button', {type:'button', class:'key' + (cls ? ' ' + cls : ''), 'aria-label':aria || label,
+        onpointerdown:e => e.preventDefault(), onclick:() => press(k)}, label));
+      key('C', 'C', 'kop kc', 'Clear calculator'); key('back', '\u232b', 'kback', 'Delete'); key('/', '\u00f7', 'kop', 'Divide');
+      key('7', '7'); key('8', '8'); key('9', '9'); key('*', '\u00d7', 'kop', 'Times');
+      key('4', '4'); key('5', '5'); key('6', '6'); key('-', MINUS, 'kop', 'Minus');
+      key('1', '1'); key('2', '2'); key('3', '3'); key('+', '+', 'kop', 'Plus');
+      key('0', '0', 'kzero'); key('.', '.', '', 'Point'); key('=', '=', 'keq', 'Equals');
+      calc.appendChild(h('button', {type:'button', class:'key kwide kput', onpointerdown:e => e.preventDefault(), onclick:putIn}, 'Put in box \u2191'));
+      calc.appendChild(h('button', {type:'button', class:'key kwide knext', onpointerdown:e => e.preventDefault(), onclick:() => { const it = activeIn || items[0]; nextBox(it); }}, 'Next box \u25b6'));
+      const wrap = h('div', {class:'padwrap'});
+      const hideBtn = h('button', {type:'button', class:'chide', 'aria-expanded':'true', onclick:() => {
+        const shut = wrap.classList.toggle('shut'); hideBtn.setAttribute('aria-expanded', shut ? 'false' : 'true'); hideBtn.textContent = shut ? 'Show calculator \u25b4' : 'Hide \u25be'; }}, 'Hide \u25be');
+      wrap.appendChild(h('div', {class:'calcbox'}, h('div', {class:'clabel'}, h('span', null, 'Calculator'), hideBtn), h('div', {class:'cbody'}, h('div', {class:'cscreen'}, tapeEl, disp), calc)));
+      work.appendChild(wrap);
+    }
+
+    /* one problem at a time */
+    let cur = 0;
+    const prog = h('div', {class:'prog', 'aria-hidden':'true'}, h('span'));
+    const where = h('span', {class:'where'});
+    const back = h('button', {type:'button', class:'tbtn big', onclick:() => go(cur - 1)}, '◀ Back');
+    const next = h('button', {type:'button', class:'bigbtn', onclick:() => go(cur + 1)}, 'Next ▶');
+    const done = h('button', {type:'button', class:'bigbtn'}, 'I’m finished');
+    function go(i){
+      cur = Math.max(0, Math.min(items.length - 1, i));
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      items.forEach((x, k) => x.cell.classList.toggle('cur', k === cur));
+      where.textContent = 'Problem ' + (cur + 1) + ' of ' + items.length;
+      prog.firstChild.style.width = Math.round((cur + 1) / items.length * 100) + '%';
+      back.style.visibility = cur === 0 ? 'hidden' : 'visible';
+      next.hidden = cur === items.length - 1; done.hidden = cur !== items.length - 1;
+      activeIn = items[cur]; items.forEach(x => x.cell.classList.toggle('act', x === activeIn));
+      if (tool === 'none') { try { items[cur].inp.focus({preventScroll:true}); } catch(e) {} }
+      announce('Problem ' + (cur + 1) + ' of ' + items.length + '. ' + sayProblem(items[cur].p, cfg));
+    }
+    function setPaged(on){
+      root.classList.toggle('ws-paged', on); root.classList.toggle('ws-list', !on);
+      grid.setAttribute('style', gridStyle(cfg, probs, on));
+    }
+    const pager = h('div', {class:'pager'}, back, h('div', {class:'mid'}, where, prog), next, done);
+    if (paged) { mainCol.appendChild(pager); go(0); }
+    else mainCol.appendChild(h('div', {class:'donebar'}, done));
+    const out = h('div', {class:'resultwrap'});
+    root.appendChild(out);
+
+    done.addEventListener('click', () => {
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      const got = items.filter(isRight).length, total = items.length, open = items.filter(x => !x.inp.value.trim()).length;
+      if (cfg.showMarks) items.forEach(setMark);
+      marked = !!cfg.showMarks;
+      if (paged) { setPaged(false); pager.hidden = true; }
+      const name = (nameEl.value || '').trim();
+      const text = () => {
+        const T = [(cfg.title || 'Money math') + ' - results', 'Learner: ' + (name || '(no name entered)'), 'Date: ' + new Date().toLocaleString(), 'Score: ' + got + ' of ' + total + ' correct', 'On-screen keys: ' + ({calc:'calculator', pad:'number pad only', none:'none'}[tool]), ''];
+        items.forEach((x, i) => {
+          const p = x.p, given = x.inp.value.trim();
+          const st = isRight(x) ? '[right] ' : given ? '[wrong] ' : '[no answer] ';
+          T.push('  ' + st + (i + 1) + '. ' + fmt(p.a, cfg, true) + (p.op === '-' ? ' - ' : ' + ') + fmt(p.b, cfg, true) + ' = ' + fmt(answerOf(p), cfg, true) + (isRight(x) ? '' : given ? '   (answered: ' + given + ')' : ''));
+        });
+        return T.join('\n');
+      };
+      const subj = (cfg.subject || 'Money math results') + (name ? ' - ' + name : '');
+      const missed = got < total;
+      out.textContent = '';
+      const em = h('input', {type:'email', class:'emailin', placeholder:'name@example.com', value:cfg.email || '', 'aria-label':'Email address for results'});
+      const copyBtn = h('button', {type:'button', class:'tbtn big', onclick:() => {
+        const t = text(), ok = () => { copyBtn.textContent = 'Copied'; setTimeout(() => { copyBtn.textContent = 'Copy results'; }, 2000); };
+        const fallback = () => { const ta = h('textarea', {style:'position:fixed;left:-999px'}); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); ok(); } catch(e) {} ta.remove(); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fallback); else fallback();
+      }}, 'Copy results');
+      const heading = cfg.showScore ? 'You got ' + got + ' of ' + total + ' right.' : 'Nice work. Your answers are ready to send.';
+      const sub = [];
+      if (open) sub.push(open === 1 ? '1 problem does not have an answer yet.' : open + ' problems do not have an answer yet.');
+      if (cfg.showMarks && missed) sub.push('Problems marked with an X need another look.');
+      out.appendChild(h('div', {class:'result'},
+        h('h2', null, heading),
+        sub.length ? h('p', {class:'resnote'}, sub.join(' ')) : null,
+        cfg.showMarks && missed ? h('div', {class:'rbtns'}, h('button', {type:'button', class:'bigbtn', onclick:() => {
+          const wrong = [];
+          items.forEach((x, k) => { if (!isRight(x)) { x.inp.value = ''; wrong.push(k); } unmark(x); });
+          out.textContent = ''; marked = false;
+          if (paged) { setPaged(true); pager.hidden = false; go(wrong[0] || 0); root.scrollIntoView({behavior:'smooth', block:'start'}); }
+          else { const first = items[wrong[0] || 0]; first.cell.scrollIntoView({behavior:'smooth', block:'center'}); activeIn = first; items.forEach(x => x.cell.classList.toggle('act', x === first)); if (tool === 'none') first.inp.focus({preventScroll:true}); }
+          announce('Wrong answers cleared. Try those problems again.');
+        }}, 'Fix the ones I missed')) : null,
+        h('div', {class:'emailrow'}, h('label', null, 'Send results to'), em),
+        h('div', {class:'rbtns'},
+          h('button', {type:'button', class:cfg.showMarks && missed ? 'tbtn big' : 'bigbtn', onclick:() => {
+            const qs = 'to=' + encodeURIComponent(em.value.trim()) + '&su=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(text());
+            const w = window.open('https://mail.google.com/mail/?view=cm&fs=1&' + qs, '_blank');
+            if (!w) window.location.href = 'https://mail.google.com/mail/?view=cm&fs=1&' + qs;
+          }}, 'Open in Gmail'),
+          h('button', {type:'button', class:'tbtn big', onclick:() => { const a = h('a', {href:'mailto:' + em.value.trim() + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(text())}); document.body.appendChild(a); a.click(); a.remove(); }}, 'Email app'),
+          copyBtn,
+          h('button', {type:'button', class:'tbtn big', onclick:() => dl('results' + (name ? '-' + name.replace(/[^\w-]+/g, '_') : '') + '.txt', new Blob([text()], {type:'text/plain'}))}, 'Save results file'),
+          h('button', {type:'button', class:'tbtn big', onclick:() => { mount(root, cfg, mode); window.scrollTo(0, 0); }}, 'Start over')),
+        h('p', {class:'note'}, 'Open in Gmail needs internet and a Gmail sign-in. No internet? Use Copy results or Save results file.')));
+      announce(heading);
+      out.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  }
+
+  window.WS = {mount, fmt, words, parseMoney, answerOf, cleanProblems, sayProblem, speak, canSpeak, h};
+})();
+WS.mount(document.getElementById("root"),CONFIG,"digital");
+</script></body></html>
